@@ -1,8 +1,6 @@
-# Project Name: 
+# Project Name: Course Registration RESTAPI 
 # Overview 
 ### Objectives
-Course Registration RESTAPI
-### Users
 - Basic functions of course registration 
 - View info of available courses (overview, syllabus, instructor, capacity, schedule)
 - Register courses 
