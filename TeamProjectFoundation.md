@@ -1,13 +1,24 @@
-# Project Name: Course Registration RESTAPI 
+# Project Name: Course Registration RESTful API 
 # Overview 
 ### Objectives
-- Basic functions of course registration 
-- View info of available courses (overview, syllabus, instructor, capacity, schedule)
-- Register courses 
-- Modify list course
-- Basic GUI
+- Practice software engineering workflow including teamwork, task management, version control and communication.
+- Practice Scrum process
+- Learn how to program a RESTful API
+### Functionality
+- Login
+- Add and Edit course detail
+- View info of available course (overview, syllabus, instructor, capacity, schedule)
+- Register or Cancel course 
+- Add or Drop course
+- Basic GUI (TBD)
+### Users
+- Outside guest
+- Student
+- Faculty and Staff
+- Admin
 ### Scope
 - Local host
+_ Fulbright community
 ### Organization
-- Product Owner: Dr. Cuong Nguyen
+- Supervisor: Dr. Cuong Nguyen
 - RestAPI Dev team: Phuc Le, Anh Nguyen
