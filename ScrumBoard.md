@@ -1,5 +1,5 @@
 |   |TODO| IN PROGRESS | DONE  | DEPLOY  |
 |---|--- |---|---|---|
 | abc  |    |   |   |   |
-|   |xyz    |   |   |   |
+|   |xyz    |use-case diagram   |   |   |
 
