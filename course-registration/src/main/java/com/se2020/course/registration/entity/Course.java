@@ -27,6 +27,7 @@ public class Course{
     private int numCredits;
     private List<String> professor; // prof name
     private int capacity;
+    private int currentCapacity;
      
     Course(){}
 
