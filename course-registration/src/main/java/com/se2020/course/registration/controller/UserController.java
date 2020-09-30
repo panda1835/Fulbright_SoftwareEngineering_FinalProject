@@ -37,10 +37,22 @@ public class UserController {
     /**
      * Register for a course
      */
-    @PutMapping("/course/register/{role}/{courseId}")
-    public String courseRegister(@RequestBody Student student, @PathVariable String role
-                                                           , @PathVariable String courseId){
+    @PutMapping("/course/register/{courseId}")
+    public String courseRegister(@RequestBody String userId, @PathVariable String courseId){
         
+        // check userId to be student
+        List<User> user = userRepository.findByUserID(userId);
+        if (user.size() == 0){
+            return "Invalid user id";
+        }
+        role = user.get(0).getRole();
+        if (role.compareTo("student") != 0){
+            return "Only student can access this page";
+        }
+ 
+        // create student object
+        Student student = studentRepository.findByStudentID(userId).get(0);
+
         // check role student
         if (role.compareTo("student") != 0){
             return "Only student can access this page";
