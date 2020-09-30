@@ -18,12 +18,16 @@ public class Course{
 
     private String courseName;
     private String courseId;
-    private List<String> prerequisite;
+    private List<String> prerequisite; // courseId
     private String syllabus;
-    private String startDay;
-    private String endDay;
-    private List<Student> studentList;
-    
+    private String startDay; // TBD date
+    private String endDay; // TBD date
+    private List<String> studentList; // studentId
+    private List<String> classTime; // TBD date
+    private int numCredits;
+    private List<String> professor; // prof name
+    private int capacity;
+     
     Course(){}
 
     Course(String courseId){

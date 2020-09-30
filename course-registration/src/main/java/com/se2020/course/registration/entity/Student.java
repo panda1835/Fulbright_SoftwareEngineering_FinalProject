@@ -19,12 +19,12 @@ public class Student{
     private int numCredits;
     private String name;
     private String dob;
-    private int classOf;
+    private int gradYear;
     private String email;
     private String studentId;
     private String aboutMe;
-    private List<String> pastCourses;
-    private List<Course> currentRegisteredCourse;
+    private List<String> pastCourses; // courseId
+    private List<String> currentRegisteredCourse; // courseId
 
     public Student(){}
 
