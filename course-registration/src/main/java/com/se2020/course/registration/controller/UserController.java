@@ -73,4 +73,27 @@ public class UserController {
 
         return "You successfully register for this course";
     }
+
+    /**
+     * Student Edit profile
+     */
+    @PutMapping("/profile/edit/{role}/{studentId}")
+    public String updateProfile(@RequestBody Student student, @PathVariable String role
+                                                            , @PathVariable String studentId){
+        // check student
+        if (role.compareTo("student") == 0){
+            Student updateStudent = studentRepository.getOne(studentId);
+            updateStudent.setAboutMe(student.getAboutMe());
+            updateStudent.setCurrentRegisteredCourse(student.getCurrentRegisteredCourse());
+            updateStudent.setDob(student.getDob());
+            updateStudent.setEmail(student.getDob());
+            updateStudent.setGradYear(student.getGradYear());
+            updateStudent.setName(student.getName());
+            updateStudent.setNumCredits(student.getNumCredits());
+            updateStudent.setPastCourses(student.getPastCourses());
+            updateStudent.setStudentId(student.getStudentId());
+            studentRepository.save(updateStudent);
+        }
+        return "Success";
+    }
 }
