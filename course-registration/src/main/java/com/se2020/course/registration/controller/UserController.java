@@ -22,6 +22,9 @@ public class UserController {
     private UserRepository userRepository;
 
     //ALL USERS
+    /**
+     * All user browse course
+     */
     @GetMapping("/browse")
     public List<Course> browseCourse(){
         return courseRepository.findAll();
@@ -34,13 +37,13 @@ public class UserController {
     /**
      * Register for a course
      */
-    @PutMapping("/register/{role}/{courseId}")
-    public String cancelCourse(@RequestBody Student student, @PathVariable String role
+    @PutMapping("/course/register/{role}/{courseId}")
+    public String courseRegister(@RequestBody Student student, @PathVariable String role
                                                            , @PathVariable String courseId){
         
         // check role student
         if (role.compareTo("student") != 0){
-            return "Only a student can view this page";
+            return "Only student can access this page";
         }
 
         Course course = courseRepository.findById(courseId);
@@ -82,7 +85,57 @@ public class UserController {
     }
 
     /**
-     * Student Edit profile
+     * Cancel a course
+     */
+    @PutMapping("/course/cancel/{courseId}")
+    public String courseCancel(@RequestBody String userId, @PathVariable String courseId){
+
+        // check userId to be student
+        List<User> user = userRepository.findByUserID(userId);
+        if (user.size() == 0){
+            return "Invalid user id";
+        }
+        role = user.get(0).getRole();
+        if (role.compareTo("student") != 0){
+            return "Only student can access this page";
+        }
+
+        // create student object
+        Student student = studentRepository.findByStudentID(userId).get(0);
+
+        // check student in this course
+        List<Course> courses = courseRepository.findByCourseID(courseId);
+        if (courses.size() == 0){
+            return "Invalid course id";
+        }
+        Course course = courses.get(0);
+        boolean bol = false;
+        for (String id: course.getStudentList()){
+            if (id.compareTo(student.getStudentId()) == 0){
+                bol = true;
+                break;
+            }
+        }
+        if (bol == false){
+            return "You are not in this course";
+        }
+
+        // check 2-week duration
+        // ...
+
+        // success, update database
+        Student updateStudent = studentRepository.getOne(studentId);
+        Student updateCourse = courseRepository.getOne(courseId);
+        updateStudent.getCurrentRegisteredCourse().remove(courseId);
+        updateCourse.getStudentList().remove(studentId);
+        studentRepository.save(updateStudent);
+        courseRepository.save(updateCourse);
+
+        return "You successfully cancel this course";
+    }
+
+    /**
+     * Edit profile
      */
     @PutMapping("/profile/edit/{role}/{studentId}")
     public String updateProfile(@RequestBody Student student, @PathVariable String role
@@ -103,4 +156,6 @@ public class UserController {
         }
         return "Success";
     }
+
+
 }
