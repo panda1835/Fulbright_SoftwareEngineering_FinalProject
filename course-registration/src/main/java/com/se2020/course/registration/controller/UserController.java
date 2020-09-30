@@ -34,8 +34,15 @@ public class UserController {
     /**
      * Register for a course
      */
-    @PutMapping("/register/{courseId}")
-    public String cancelCourse(@RequestBody Student student, @PathVariable String courseId){
+    @PutMapping("/register/{role}/{courseId}")
+    public String cancelCourse(@RequestBody Student student, @PathVariable String role
+                                                           , @PathVariable String courseId){
+        
+        // check role student
+        if (role.compareTo("student") != 0){
+            return "Only a student can view this page";
+        }
+
         Course course = courseRepository.findById(courseId);
         String studentId = student.getStudentId();
         
