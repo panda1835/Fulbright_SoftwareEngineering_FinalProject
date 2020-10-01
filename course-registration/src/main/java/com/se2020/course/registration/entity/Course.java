@@ -15,6 +15,7 @@ import lombok.Data;
 public class Course{ 
     @Id 
     @GeneratedValue
+    long id;
 
     private String courseName;
     // private String courseId;
@@ -26,7 +27,6 @@ public class Course{
     private int currentCapacity;
     private int numCredits;
     String courseId;
-    long id;
 
     private List<String> studentList; // studentId
     private List<Date> classTime; // TBD date

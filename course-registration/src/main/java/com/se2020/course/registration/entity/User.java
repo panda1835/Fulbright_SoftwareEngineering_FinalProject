@@ -11,13 +11,13 @@ import lombok.Data;
 public class User {
     @Id
     @GeneratedValue
+    long id;
 
     private String userName;
     private String email;
     private String hashedPassword;
     private String role;
     private String userId;
-    long id;
     
     
 }
