@@ -9,6 +9,7 @@ import com.se2020.course.registration.repository.CourseRepository;
 import com.se2020.course.registration.repository.StudentRepository;
 import com.se2020.course.registration.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -45,7 +46,7 @@ public class UserController {
         if (user.size() == 0){
             return "Invalid user id";
         }
-        role = user.get(0).getRole();
+        String role = user.get(0).getRole();
         if (role.compareTo("student") != 0){
             return "Only student can access this page";
         }
@@ -58,7 +59,7 @@ public class UserController {
             return "Only student can access this page";
         }
 
-        Course course = courseRepository.findById(courseId);
+        Course course = courseRepository.findByCourseID(courseId).get(0);
         String studentId = student.getStudentId();
         
         // check capacity
@@ -86,8 +87,8 @@ public class UserController {
         }
 
         // success, update database
-        Student updateStudent = studentRepository.getOne(studentId);
-        Student updateCourse = courseRepository.getOne(courseId);
+        Student updateStudent = studentRepository.getOne(student.getId());
+        Course updateCourse = courseRepository.getOne(course.getId());
         updateStudent.getCurrentRegisteredCourse().add(courseId);
         updateCourse.getStudentList().add(studentId);
         studentRepository.save(updateStudent);
@@ -107,14 +108,14 @@ public class UserController {
         if (user.size() == 0){
             return "Invalid user id";
         }
-        role = user.get(0).getRole();
+        String role = user.get(0).getRole();
         if (role.compareTo("student") != 0){
             return "Only student can access this page";
         }
 
         // create student object
         Student student = studentRepository.findByStudentID(userId).get(0);
-
+        String studentId = student.getStudentId();
         // check student in this course
         List<Course> courses = courseRepository.findByCourseID(courseId);
         if (courses.size() == 0){
@@ -136,8 +137,8 @@ public class UserController {
         // ...
 
         // success, update database
-        Student updateStudent = studentRepository.getOne(studentId);
-        Student updateCourse = courseRepository.getOne(courseId);
+        Student updateStudent = studentRepository.getOne(student.getId());
+        Course updateCourse = courseRepository.getOne(course.getId());
         updateStudent.getCurrentRegisteredCourse().remove(courseId);
         updateCourse.getStudentList().remove(studentId);
         studentRepository.save(updateStudent);
@@ -154,7 +155,7 @@ public class UserController {
                                                             , @PathVariable String studentId){
         // check student
         if (role.compareTo("student") == 0){
-            Student updateStudent = studentRepository.getOne(studentId);
+            Student updateStudent = studentRepository.getOne(student.getId());
             updateStudent.setAboutMe(student.getAboutMe());
             updateStudent.setCurrentRegisteredCourse(student.getCurrentRegisteredCourse());
             updateStudent.setDob(student.getDob());
