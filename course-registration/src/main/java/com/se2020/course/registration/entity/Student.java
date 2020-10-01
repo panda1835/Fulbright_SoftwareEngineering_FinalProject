@@ -13,7 +13,7 @@ import lombok.Data;
 @Entity
 @Data
 public class Student{
-    @Id
+    @Id 
     @GeneratedValue
 
     private int numCredits;
@@ -23,6 +23,7 @@ public class Student{
     private String email;
     private String studentId;
     private String aboutMe;
+    long id;
     private List<String> pastCourses; // courseId
     private List<String> currentRegisteredCourse; // courseId
 

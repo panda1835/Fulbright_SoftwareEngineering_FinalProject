@@ -17,6 +17,7 @@ public class User {
     private String hashedPassword;
     private String role;
     private String userId;
+    long id;
     
     
 }
