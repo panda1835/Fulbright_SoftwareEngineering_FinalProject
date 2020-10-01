@@ -4,9 +4,9 @@ import java.util.List;
 import java.util.Date;
 import com.se2020.course.registration.entity.Student;
 
-import javax.persistence.*;
-// import javax.persistence.GeneratedValue;
-// import javax.persistence.Id;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+import javax.persistence.Entity;
 
 import lombok.Data;
 
