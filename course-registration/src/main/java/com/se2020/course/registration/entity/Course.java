@@ -1,5 +1,6 @@
 package com.se2020.course.registration.entity;
 
+import java.util.Calendar;
 import java.util.List;
 
 import com.se2020.course.registration.entity.Student;
@@ -12,25 +13,35 @@ import lombok.Data;
 
 @Entity
 @Data
-public class Course{ 
+public class Course{
+    // FIELDS:
     @Id
     @GeneratedValue
+    private Long id;
 
     private String courseName;
-    private String courseId;
-    private List<String> prerequisite; // courseId
-    private String syllabus;
-    private String startDay; // TBD date
-    private String endDay; // TBD date
-    private List<String> studentList; // studentId
-    private List<String> classTime; // TBD date
-    private int numCredits;
-    private List<String> professor; // prof name
-    private int capacity;
-     
+    private String courseNumber;
+
+//    private List<String> professor; // prof name
+//
+//    private List<String> prerequisite; // courseNumber
+//    private String syllabus;
+//    private int numCredits;
+//    private int capacity;
+//
+//    private Calendar startDate;
+//    private Calendar endDate;
+//    private List<Calendar> schedule;
+//
+//    private List<String> studentList; // studentId
+
+
+    //CONSTRUCTOR:
     Course(){}
 
-    Course(String courseId){
-        this.courseId = courseId;
+    Course(String courseNumber){
+        this.courseNumber = courseNumber;
     }
+
+
 }
