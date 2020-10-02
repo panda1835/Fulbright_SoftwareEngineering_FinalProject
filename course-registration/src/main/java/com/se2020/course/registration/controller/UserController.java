@@ -54,10 +54,6 @@ public class UserController {
         // create student object
         Student student = studentRepository.findByStudentID(userId).get(0);
 
-        // check role student
-        if (role.compareTo("student") != 0){
-            return "Only student can access this page";
-        }
 
         Course course = courseRepository.findByCourseID(courseId).get(0);
         String studentId = student.getStudentId();
