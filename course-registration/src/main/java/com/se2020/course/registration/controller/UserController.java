@@ -1,9 +1,9 @@
 package com.se2020.course.registration.controller;
-
 import java.util.*;
 
 import com.se2020.course.registration.entity.Course;
 import com.se2020.course.registration.entity.User;
+import com.se2020.course.registration.enums.RolesEnum;
 import com.se2020.course.registration.repository.CourseRepository;
 import com.se2020.course.registration.repository.StudentRepository;
 import com.se2020.course.registration.repository.UserRepository;
@@ -27,22 +27,35 @@ public class UserController {
      * Views list of current users
      * @return list of current users
      */
-    @GetMapping("/users")
-    public List<User> getAllUsers(){return userRepository.findAll();}
+    @GetMapping("/user")
+    @ResponseBody
+    public List<User> getAllUsers(@RequestParam("email") String email, @RequestParam("password") String password){
+        String hashed = SecurityUtils.hashPassword(password);
+        List<User> requesters = userRepository.findByEmailAndPassword(email, hashed);
 
+        if (requesters.size() > 0) {
+            User requester = requesters.get(0);
+            String role = requester.getRole().toUpperCase();
+            if (RolesEnum.valueOf(role).equals(RolesEnum.ADMIN)) {
+                return userRepository.findAll();
+            }
+
+        }
+        return new ArrayList<>();
+    }
     /**
      * Adds a new user
      * @param user
      * @return
      */
-    @PostMapping("/add/user")
+    @PostMapping("/user")
     public String addUser(@RequestBody User user){
         if (userRepository.existsByUserId(user.getUserId())){
             return "User exists!";
         }
         user.setRole(user.getRole().toUpperCase());
-        String hashedPassword = SecurityUtils.hashPassword(user.getHashedPassword());
-        user.setHashedPassword(hashedPassword);
+        String hashedPassword = SecurityUtils.hashPassword(user.getPassword());
+        user.setPassword(hashedPassword);
         userRepository.save(user);
         return "Success";
     }
@@ -52,7 +65,7 @@ public class UserController {
      * @param userId
      * @return
      */
-    @DeleteMapping("/remove/user/{userId}")
+    @DeleteMapping("/user/{userId}")
     public String removeUser(@PathVariable String userId){
         if (userRepository.existsByUserId(userId)){
             userRepository.deleteByUserId(userId);
@@ -60,7 +73,6 @@ public class UserController {
         }
         return "User not found";
     }
-
 
 
 
