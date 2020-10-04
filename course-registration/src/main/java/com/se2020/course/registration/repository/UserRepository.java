@@ -8,7 +8,7 @@ import org.springframework.data.repository.query.Param;
 import java.util.List;
 
 public interface UserRepository extends JpaRepository<User, Long>{
-    List<User> findByEmailAndHashedPassword(@Param("email") String email, @Param("pass") String password);
+    List<User> findByEmailAndPassword(@Param("email") String email, @Param("pass") String password);
 
     boolean existsByUserId(@Param("userid") String userId);
 
