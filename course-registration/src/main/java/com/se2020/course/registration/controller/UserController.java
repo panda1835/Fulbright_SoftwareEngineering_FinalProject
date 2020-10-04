@@ -20,11 +20,6 @@ public class UserController {
     @Autowired
     private UserRepository userRepository;
 
-    //ALL USERS
-    @GetMapping("/browse")
-    public List<Course> browseCourse(){
-        return courseRepository.findAll();
-    }
 
     // ADMIN APIs:
 
