@@ -1,0 +1,8 @@
+package com.se2020.course.registration.enums;
+
+public enum PermissionsEnum {
+    LOG_IN, CHANGE_PASSWORD, MODIFY_PROFILE,
+    ADD_USER, DELETE_USER, MODIFY_USER, GET_USER,
+    ADD_COURSE, DELETE_COURSE, MODIFY_COURSE, GET_COURSE,
+    REGISTER_COURSE, CANCEL_COURSE
+}
