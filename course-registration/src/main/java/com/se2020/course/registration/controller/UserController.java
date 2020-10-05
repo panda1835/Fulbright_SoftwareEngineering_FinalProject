@@ -7,6 +7,7 @@ import com.se2020.course.registration.enums.RolesEnum;
 import com.se2020.course.registration.repository.CourseRepository;
 import com.se2020.course.registration.repository.StudentRepository;
 import com.se2020.course.registration.repository.UserRepository;
+import com.se2020.course.registration.utils.PermissionUtils;
 import com.se2020.course.registration.utils.SecurityUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -21,6 +22,7 @@ public class UserController {
     private UserRepository userRepository;
 
 
+
     // ADMIN APIs:
 
     /**
@@ -30,19 +32,25 @@ public class UserController {
     @GetMapping("/user")
     @ResponseBody
     public List<User> getAllUsers(@RequestParam("email") String email, @RequestParam("password") String password){
-        String hashed = SecurityUtils.hashPassword(password);
-        List<User> requesters = userRepository.findByEmailAndPassword(email, hashed);
-
-        if (requesters.size() > 0) {
-            User requester = requesters.get(0);
-            String role = requester.getRole().toUpperCase();
-            if (RolesEnum.valueOf(role).equals(RolesEnum.ADMIN)) {
-                return userRepository.findAll();
-            }
-
+        if (PermissionUtils.hasPermission(email,password,userRepository)){
+            return userRepository.findAll();
         }
         return new ArrayList<>();
     }
+
+    @GetMapping("/user/{userId}")
+    @ResponseBody
+    public User getUser(@RequestParam("email") String email, @RequestParam("password") String password,
+                              @PathVariable("userId") String userId){
+
+        if (PermissionUtils.hasPermission(email,password,userRepository)){
+            return userRepository.findByUserId(userId);
+        }
+        return null;
+    }
+
+
+
     /**
      * Adds a new user
      * @param user

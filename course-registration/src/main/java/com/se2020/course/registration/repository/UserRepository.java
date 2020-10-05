@@ -12,5 +12,7 @@ public interface UserRepository extends JpaRepository<User, Long>{
 
     boolean existsByUserId(@Param("userid") String userId);
 
+    User findByUserId(@Param("userId") String userId);
+
     void deleteByUserId(@Param("userId") String userId);
 }
