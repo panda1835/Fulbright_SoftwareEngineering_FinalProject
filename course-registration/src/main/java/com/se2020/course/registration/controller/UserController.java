@@ -16,8 +16,10 @@ import org.springframework.web.bind.annotation.*;
 public class UserController {
     @Autowired
     private CourseRepository courseRepository;
+
     @Autowired
     private StudentRepository studentRepository;
+
     @Autowired
     private UserRepository userRepository;
 
@@ -35,10 +37,12 @@ public class UserController {
     @GetMapping("/user")
     @ResponseBody
     public List<User> getAllUsers(@RequestParam("email") String email, @RequestParam("password") String password){
-        if (PermissionUtils.hasPermission(PermissionsEnum.GET_USER, email,password, userRepository)){
+        if (PermissionUtils.hasPermission(PermissionsEnum.GET_USER, email, password, userRepository)){
             return userRepository.findAll();
+        }else{
+            return new ArrayList<>();
         }
-        return new ArrayList<>();
+
     }
 
     /**
@@ -65,7 +69,7 @@ public class UserController {
      * @param email email of requester
      * @param password password of requester
      * @param user  the new user
-     * @return "Sucess" if requester has permission, the user has both unique email and user ID
+     * @return "Success" if requester has permission, the user has both unique email and user ID
      * otherwise error message
      */
     @PostMapping("/user")
@@ -87,12 +91,8 @@ public class UserController {
             return "Not enough info to execute this action. Both user's email and user ID required.";
         }
 
-        if (userRepository.findByEmail(user.getEmail()).isPresent()){
-            return "Existing email";
-        }
-        if (userRepository.findByUserId(user.getUserId()).isPresent()){
-            return "Existing user id";
-        }
+        if (userRepository.findByEmail(user.getEmail()).isPresent()){ return "Existing email"; }
+        if (userRepository.findByUserId(user.getUserId()).isPresent()){ return "Existing user id"; }
 
         String hashedPassword = SecurityUtils.hashPassword(user.getPassword());
         user.setPassword(hashedPassword);
@@ -117,7 +117,7 @@ public class UserController {
             return "Only Admin are allowed to update user info";
         }
 
-        if (!userRepository.findByUserId(userId).isPresent()){
+        if (userRepository.findByUserId(userId).isEmpty()){
             return "User not found";
         }
         User user = userRepository.findByUserId(userId).get();
@@ -144,7 +144,7 @@ public class UserController {
             return "Only Admin are allowed to delete user";
         }
 
-        if (!userRepository.findByUserId(userId).isPresent()){
+        if (userRepository.findByUserId(userId).isEmpty()){
             return "User not found";
         }
         userRepository.deleteByUserId(userId);
@@ -154,6 +154,125 @@ public class UserController {
     /**
      * ADMIN -- courses API
      */
+
+    /**
+     *
+     * @param email
+     * @param password
+     * @return
+     */
+    @GetMapping("/course")
+    @ResponseBody
+    public List<Course> getAllCourses(@RequestParam("email") String email, @RequestParam("password") String password){
+        if (PermissionUtils.hasPermission(PermissionsEnum.GET_COURSE, email,password, userRepository)){
+            return courseRepository.findAll();
+        }
+        return new ArrayList<>();
+    }
+
+    /**
+     *
+     * @param email
+     * @param password
+     * @param courseId
+     * @return
+     */
+    @GetMapping("/course/{courseId}")
+    @ResponseBody
+    public Course getCourse(@RequestParam("email") String email, @RequestParam("password") String password,
+                            @PathVariable("courseId") String courseId){
+        if (PermissionUtils.hasPermission(PermissionsEnum.GET_COURSE, email,password,userRepository)){
+            return courseRepository.findByCourseId(courseId).orElse(null);
+        }
+        return null;
+
+    }
+
+    /**
+     *
+     * @param email
+     * @param password
+     * @param course
+     * @return
+     */
+    @PostMapping("/course")
+    @ResponseBody
+    public String addCourse(@RequestParam("email") String email, @RequestParam("password") String password,
+                            @RequestBody Course course){
+        if (!PermissionUtils.hasPermission(PermissionsEnum.ADD_COURSE, email, password, userRepository)){
+            return "Only Admin are allowed to add new course";
+        }
+
+        if (course.getCourseId() == null){
+            return "Course ID required to execute this action.";
+        }
+
+        if (courseRepository.findByCourseId(course.getCourseId()).isPresent()){ return "Existing course id"; }
+
+        courseRepository.save(course);
+        return "Success";
+
+    }
+
+    /**
+     *
+     * @param email
+     * @param password
+     * @param updatedCourse
+     * @param courseId
+     * @return
+     */
+    @PutMapping("course/{courseId}")
+    @ResponseBody
+    public String updateCourse(@RequestParam("email") String email, @RequestParam("password") String password,
+                               @RequestBody Course updatedCourse, @PathVariable("courseId") String courseId){
+        if (!PermissionUtils.hasPermission(PermissionsEnum.MODIFY_COURSE, email, password,userRepository)){
+            return "Only Admin are allowed to update course info";
+        }
+
+        if (courseRepository.findByCourseId(courseId).isEmpty()){
+            return "Course not found";
+        }
+
+        Course course = courseRepository.findByCourseId(courseId).get();
+
+        course.setCourseName(updatedCourse.getCourseName());
+
+        course.setProfessors(updatedCourse.getProfessors());
+        course.setPrerequisites(updatedCourse.getPrerequisites());
+
+        course.setSyllabus(updatedCourse.getSyllabus());
+        course.setNumCredits(updatedCourse.getNumCredits());
+        course.setCapacity(updatedCourse.getCapacity());
+
+        course.setStartDate(updatedCourse.getStartDate());
+        course.setEndDate(updatedCourse.getEndDate());
+        course.setSchedule(updatedCourse.getSchedule());
+
+        return "Success";
+    }
+
+    /**
+     *
+     * @param email
+     * @param password
+     * @param courseId
+     * @return
+     */
+    @DeleteMapping("course/{courseId}")
+    @ResponseBody
+    public String deleteCourse(@RequestParam("email") String email, @RequestParam("password") String password,
+                               @PathVariable("courseId") String courseId){
+        if (!PermissionUtils.hasPermission(PermissionsEnum.DELETE_COURSE, email, password, userRepository)){
+            return "Only Admin are allowed to delete course";
+        }
+
+        if (courseRepository.findByCourseId(courseId).isEmpty()){
+            return "Course not found";
+        }
+        courseRepository.deleteByCourseId (courseId);
+        return "Success";
+    }
 
 
 
