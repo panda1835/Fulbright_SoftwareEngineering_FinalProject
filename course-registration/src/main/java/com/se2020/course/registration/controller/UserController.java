@@ -3,6 +3,7 @@ import java.util.*;
 
 import com.se2020.course.registration.entity.Course;
 import com.se2020.course.registration.entity.User;
+import com.se2020.course.registration.enums.PermissionsEnum;
 import com.se2020.course.registration.enums.RolesEnum;
 import com.se2020.course.registration.repository.CourseRepository;
 import com.se2020.course.registration.repository.StudentRepository;
@@ -32,7 +33,7 @@ public class UserController {
     @GetMapping("/user")
     @ResponseBody
     public List<User> getAllUsers(@RequestParam("email") String email, @RequestParam("password") String password){
-        if (PermissionUtils.hasPermission(email,password,userRepository)){
+        if (PermissionUtils.hasPermission(PermissionsEnum.GET_USER, email,password, userRepository)){
             return userRepository.findAll();
         }
         return new ArrayList<>();
@@ -43,12 +44,11 @@ public class UserController {
     public User getUser(@RequestParam("email") String email, @RequestParam("password") String password,
                               @PathVariable("userId") String userId){
 
-        if (PermissionUtils.hasPermission(email,password,userRepository)){
+        if (PermissionUtils.hasPermission(PermissionsEnum.GET_USER, email,password,userRepository)){
             return userRepository.findByUserId(userId);
         }
         return null;
     }
-
 
 
     /**
@@ -57,9 +57,23 @@ public class UserController {
      * @return
      */
     @PostMapping("/user")
-    public String addUser(@RequestBody User user){
+    @ResponseBody
+    public String addUser(@RequestParam("email") String email, @RequestParam("password") String password,
+                          @RequestBody User user){
+        if (!PermissionUtils.hasPermission(PermissionsEnum.ADD_USER, email, password,userRepository)){
+            return "Only Admin are allowed to add new user";
+        }
+
+        if (user.getEmail() == null | user.getUserId() == null){
+            return "Not enough info to execute this action. Both email and user ID required.";
+        }
+
         if (userRepository.existsByUserId(user.getUserId())){
-            return "User exists!";
+            return "Existing user!";
+        }
+
+        if (user.getRole() == null){
+            user.setRole("GUEST");
         }
         user.setRole(user.getRole().toUpperCase());
         String hashedPassword = SecurityUtils.hashPassword(user.getPassword());
