@@ -22,8 +22,9 @@ public class UserController {
     private UserRepository userRepository;
 
 
-
-    // ADMIN APIs:
+    /**
+     * Admin -- users APIs
+     */
 
     /**
      * Gets all users
@@ -71,7 +72,14 @@ public class UserController {
     @ResponseBody
     public String addUser(@RequestParam("email") String email, @RequestParam("password") String password,
                           @RequestBody User user){
-        if (!PermissionUtils.hasPermission(PermissionsEnum.ADD_USER, email, password,userRepository)){
+        if (userRepository.findAll().size() == 0){
+            User firstUser = new User(email, password);
+            firstUser.setUserId("0");
+            firstUser.setRole("admin");
+            userRepository.save(firstUser);
+        }
+
+        if (!PermissionUtils.hasPermission(PermissionsEnum.ADD_USER, email, password, userRepository)){
             return "Only Admin are allowed to add new user";
         }
 
@@ -86,8 +94,6 @@ public class UserController {
             return "Existing user id";
         }
 
-        user.setRole(user.getRole().toUpperCase());
-        user.setUserId(user.getUserId());
         String hashedPassword = SecurityUtils.hashPassword(user.getPassword());
         user.setPassword(hashedPassword);
         userRepository.save(user);
@@ -118,7 +124,7 @@ public class UserController {
         user.setUserName(updatedUser.getUserName());
         user.setRole(updatedUser.getRole());
         userRepository.save(user);
-        return "Success update";
+        return "Success";
 
     }
 
@@ -144,6 +150,11 @@ public class UserController {
         userRepository.deleteByUserId(userId);
         return "Success";
     }
+
+    /**
+     * ADMIN -- courses API
+     */
+
 
 
 
