@@ -12,7 +12,7 @@ import java.util.List;
 public class RoleUtils {
     public static final List<PermissionsEnum> ADMIN_PERMISSION = new ArrayList<>(Arrays.asList(
             PermissionsEnum.LOG_IN, PermissionsEnum.CHANGE_PASSWORD, PermissionsEnum.MODIFY_PROFILE,
-            PermissionsEnum.ADD_USER, PermissionsEnum.MODIFY_USER, PermissionsEnum.DELETE_USER,
+            PermissionsEnum.ADD_USER, PermissionsEnum.MODIFY_USER, PermissionsEnum.DELETE_USER,PermissionsEnum.GET_USER,
             PermissionsEnum.ADD_COURSE, PermissionsEnum.MODIFY_COURSE, PermissionsEnum.DELETE_COURSE,
             PermissionsEnum.ADD_STUDENT_COURSE, PermissionsEnum.DELETE_STUDENT_COURSE,
             PermissionsEnum.MODIFY_STUDENT_COURSE, PermissionsEnum.GET_STUDENT_COURSE));
