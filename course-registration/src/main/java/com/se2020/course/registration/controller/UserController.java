@@ -4,7 +4,6 @@ import java.util.*;
 import com.se2020.course.registration.entity.Course;
 import com.se2020.course.registration.entity.User;
 import com.se2020.course.registration.enums.PermissionsEnum;
-import com.se2020.course.registration.enums.RolesEnum;
 import com.se2020.course.registration.repository.CourseRepository;
 import com.se2020.course.registration.repository.StudentRepository;
 import com.se2020.course.registration.repository.UserRepository;
@@ -27,8 +26,10 @@ public class UserController {
     // ADMIN APIs:
 
     /**
-     * Views list of current users
-     * @return list of current users
+     * Gets all users
+     * @param email email of requester
+     * @param password password of requester
+     * @return list of users if requester has permission, otherwise an empty list
      */
     @GetMapping("/user")
     @ResponseBody
@@ -39,6 +40,13 @@ public class UserController {
         return new ArrayList<>();
     }
 
+    /**
+     * Gets one user
+     * @param email email of requester
+     * @param password password of requester
+     * @param userId user Id of person requester is looking up
+     * @return the user's info if requester has permission, otherwise an null object
+     */
     @GetMapping("/user/{userId}")
     @ResponseBody
     public User getUser(@RequestParam("email") String email, @RequestParam("password") String password,
@@ -51,11 +59,13 @@ public class UserController {
     }
 
 
-
     /**
-     * Adds a new user
-     * @param user
-     * @return
+     * Add a new user
+     * @param email email of requester
+     * @param password password of requester
+     * @param user  the new user
+     * @return "Sucess" if requester has permission, the user has both unique email and user ID
+     * otherwise error message
      */
     @PostMapping("/user")
     @ResponseBody
@@ -65,20 +75,17 @@ public class UserController {
             return "Only Admin are allowed to add new user";
         }
 
-        if (user.getEmail() == null){
-            return "User's email required to execute this action";
+        if (user.getEmail() == null | user.getUserId() == null){
+            return "Not enough info to execute this action. Both user's email and user ID required.";
         }
 
         if (userRepository.findByEmail(user.getEmail()).isPresent()){
             return "Existing email";
         }
-
         if (userRepository.findByUserId(user.getUserId()).isPresent()){
             return "Existing user id";
         }
-        if (user.getRole() == null){
-            user.setRole("GUEST");
-        }
+
         user.setRole(user.getRole().toUpperCase());
         user.setUserId(user.getUserId());
         String hashedPassword = SecurityUtils.hashPassword(user.getPassword());
@@ -87,6 +94,15 @@ public class UserController {
         return "Success";
     }
 
+    /**
+     * Updates a user info
+     * @param email email of requester
+     * @param password password of requester
+     * @param updatedUser the updated user
+     * @param userId user Id of person requester is modifying
+     * @return "Success" if requester has permission and the user ID is found,
+     *          error message otherwise
+     */
     @PutMapping("/user/{userId}")
     @ResponseBody
     public String updateUser (@RequestParam("email") String email, @RequestParam("password") String password,
@@ -95,41 +111,38 @@ public class UserController {
             return "Only Admin are allowed to update user info";
         }
 
-        userRepository.findByUserId(userId)
-                .map(user -> {
-                    user.setUserName(updatedUser.getUserName());
-                    user.setRole(updatedUser.getRole());
-                    return userRepository.save(user);
-                })
-                .orElseGet(()-> {
-
-                    return userRepository.findByEmail(updatedUser.getEmail())
-                            .map(user -> {
-                                user.setUserId(userId);
-                                user.setUserName(updatedUser.getUserName());
-                                user.setRole(updatedUser.getRole());
-                                return userRepository.save(user);
-                            }).orElseGet(() ->{
-                                updatedUser.setUserId(userId);
-                                return userRepository.save(updatedUser);
-                            });
-                });
-
+        if (!userRepository.findByUserId(userId).isPresent()){
+            return "User not found";
+        }
+        User user = userRepository.findByUserId(userId).get();
+        user.setUserName(updatedUser.getUserName());
+        user.setRole(updatedUser.getRole());
+        userRepository.save(user);
         return "Success update";
+
     }
 
     /**
-     * Removes a user
-     * @param userId
-     * @return
+     *
+     * @param email email of requester
+     * @param password password of requester
+     * @param userId user Id of person requester is deleting
+     * @return "Success" if requester has permission and the user ID is found,
+     *         error message otherwise
      */
     @DeleteMapping("/user/{userId}")
-    public String removeUser(@PathVariable String userId){
-        if (userRepository.existsByUserId(userId)){
-            userRepository.deleteByUserId(userId);
-            return "User removed";
+    @ResponseBody
+    public String deleteUser(@RequestParam("email") String email, @RequestParam("password") String password,
+                             @PathVariable("userId") String userId){
+        if (!PermissionUtils.hasPermission(PermissionsEnum.DELETE_USER, email, password, userRepository)){
+            return "Only Admin are allowed to delete user";
         }
-        return "User not found";
+
+        if (!userRepository.findByUserId(userId).isPresent()){
+            return "User not found";
+        }
+        userRepository.deleteByUserId(userId);
+        return "Success";
     }
 
 
