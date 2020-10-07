@@ -5,9 +5,7 @@ import java.util.List;
 
 import com.se2020.course.registration.entity.Student;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
+import javax.persistence.*;
 
 import lombok.Data;
 
@@ -20,27 +18,37 @@ public class Course{
     private Long id;
 
     private String courseName;
-    private String courseNumber;
+    private String courseId;
 
-//    private List<String> professor; // prof name
-//
-//    private List<String> prerequisite; // courseNumber
-//    private String syllabus;
-//    private int numCredits;
-//    private int capacity;
-//
-//    private Calendar startDate;
-//    private Calendar endDate;
-//    private List<Calendar> schedule;
-//
+    @ElementCollection
+    @CollectionTable(name = "professors")
+    private List<String> professors; // prof name
+
+    @ElementCollection
+    @CollectionTable(name = "prerequisites")
+    private List<String> prerequisites; // courseId
+
+    private String syllabus;
+    private int numCredits;
+    private int capacity;
+
+    @Temporal(TemporalType.DATE)
+    private Calendar startDate;
+
+    @Temporal(TemporalType.DATE)
+    private Calendar endDate;
+
+    @ElementCollection
+    @Temporal(TemporalType.TIMESTAMP)
+    private List<Calendar> schedule;
+
 //    private List<String> studentList; // studentId
 
-
-    //CONSTRUCTOR:
+    //CONSTRUCTORS:
     Course(){}
 
-    Course(String courseNumber){
-        this.courseNumber = courseNumber;
+    Course(String courseId){
+        this.courseId = courseId;
     }
 
 

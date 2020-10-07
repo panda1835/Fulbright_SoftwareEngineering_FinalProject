@@ -1,5 +1,6 @@
 package com.se2020.course.registration.entity;
 
+import com.se2020.course.registration.utils.SecurityUtils;
 import lombok.Data;
 
 import javax.persistence.Entity;
@@ -20,5 +21,13 @@ public class User {
     private String email;
     private String password;
     private String role;
+
+    User(){}
+
+    public User(String email, String password, String userId){
+        this.email = email;
+        this.password = SecurityUtils.hashPassword(password);
+        this.userId = userId;
+    }
 
 }
