@@ -72,9 +72,13 @@ public class UserController {
 
         // check prerequisite
         Set<String> prerequisite = course.getPrerequisite();
-        Set<String> pastCourse = student.getPastCourses();
+        Set<Course> pastCourse = student.getPastCourses();
+        Set<String> pastCourseId = new HashSet<>();
+        for (Course c:pastCourse){
+            pastCourseId.add(c.getCourseId());
+        }
         for (String pre: prerequisite){
-            if (pastCourse.contains(pre)){
+            if (pastCourseId.contains(pre)){
                 continue;
             }
             return "You are not fulfill the prerequisite";
