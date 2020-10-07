@@ -32,7 +32,7 @@ public class Student{
     private String aboutMe;
 
     @ElementCollection
-    private Set<String> pastCourses;
+    private Set<Course> pastCourses;
 
     @ManyToMany(cascade = CascadeType.ALL)
     @JoinTable(name = "student_course",
@@ -44,7 +44,8 @@ public class Student{
 
     public Student(){}
 
-    Student(String studentId){
+    Student(String name, String studentId){
+        this.name = name;
         this.studentId = studentId;
     }
 
