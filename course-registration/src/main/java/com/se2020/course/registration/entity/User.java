@@ -24,9 +24,10 @@ public class User {
 
     User(){}
 
-    public User(String email, String password){
+    public User(String email, String password, String userId){
         this.email = email;
         this.password = SecurityUtils.hashPassword(password);
+        this.userId = userId;
     }
 
 }
