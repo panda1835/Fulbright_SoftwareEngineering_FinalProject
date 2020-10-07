@@ -7,5 +7,5 @@ import org.springframework.data.repository.query.Param;
 
 import java.util.*;
 public interface CourseRepository extends JpaRepository<Course, Long> {
-    List<Course> findByCourseID(@Param("courseId") String courseId);
+    List<Course> findByCourseId(@Param("courseId") String courseId);
 }

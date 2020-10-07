@@ -7,6 +7,6 @@ import org.springframework.data.repository.query.Param;
 
 import java.util.*;
 public interface StudentRepository extends JpaRepository<Student, Long>{
-    List<Student> findByStudentID(@Param("studentId") String studentId);
+    List<Student> findByStudentId(@Param("studentId") String studentId);
     
 }

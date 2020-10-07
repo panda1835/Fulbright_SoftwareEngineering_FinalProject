@@ -8,5 +8,5 @@ import org.springframework.data.repository.query.Param;
 import java.util.*;
 
 public interface UserRepository extends JpaRepository<User, Long>{
-    List<User> findByUserID(@Param("userId") String userId);
+    List<User> findByUserId(@Param("userId") String userId);
 }
