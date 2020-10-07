@@ -77,8 +77,7 @@ public class UserController {
     public String addUser(@RequestParam("email") String email, @RequestParam("password") String password,
                           @RequestBody User user){
         if (userRepository.findAll().size() == 0){
-            User firstUser = new User(email, password);
-            firstUser.setUserId("0");
+            User firstUser = new User(email, password, "0"); //userId "0" stands for first user in repo
             firstUser.setRole("admin");
             userRepository.save(firstUser);
         }
@@ -248,7 +247,7 @@ public class UserController {
         course.setStartDate(updatedCourse.getStartDate());
         course.setEndDate(updatedCourse.getEndDate());
         course.setSchedule(updatedCourse.getSchedule());
-
+        courseRepository.save(course);
         return "Success";
     }
 
