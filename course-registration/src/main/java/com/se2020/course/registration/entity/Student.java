@@ -4,9 +4,7 @@ import java.util.List;
 
 import com.se2020.course.registration.entity.Course;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
+import javax.persistence.*;
 
 import lombok.Data;
 
@@ -15,20 +13,22 @@ import lombok.Data;
 public class Student{
     @Id
     @GeneratedValue
+    private Long id;
 
-    private int numCredits;
     private String name;
+    private String studentId;
+    private String email;
+
     private String dob;
     private int gradYear;
-    private String email;
-    private String studentId;
     private String aboutMe;
-    private List<String> pastCourses; // courseId
-    private List<String> currentRegisteredCourse; // courseId
 
-    public Student(){}
+    private int numCredits;
 
-    Student(String studentId){
-        this.studentId = studentId;
-    }
+//    private List<String> pastCourses; // courseId
+//    private List<String> currentRegisteredCourse; // courseId
+//
+    Student(){}
+//
+
 }
