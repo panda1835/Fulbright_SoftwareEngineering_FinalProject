@@ -1,12 +1,9 @@
 package com.se2020.course.registration.entity;
 
-import java.util.Calendar;
-import java.util.List;
-
+import java.util.*;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.se2020.course.registration.entity.Student;
-
 import javax.persistence.*;
-
 import lombok.Data;
 
 @Entity
@@ -16,21 +13,20 @@ public class Course{
     @Id
     @GeneratedValue
     private Long id;
-
     private String courseName;
     private String courseId;
-
-    @ElementCollection
-    @CollectionTable(name = "professors")
-    private List<String> professors; // prof name
-
-    @ElementCollection
-    @CollectionTable(name = "prerequisites")
-    private List<String> prerequisites; // courseId
-
     private String syllabus;
     private int numCredits;
     private int capacity;
+
+
+    @ElementCollection
+    @CollectionTable(name = "professors")
+    private List<String> professor; // prof name
+
+    @ElementCollection
+    @CollectionTable(name = "prerequisite")
+    private Set<String> prerequisite; // courseId
 
     @Temporal(TemporalType.DATE)
     private Calendar startDate;
@@ -40,15 +36,50 @@ public class Course{
 
     @ElementCollection
     @Temporal(TemporalType.TIMESTAMP)
-    private List<Calendar> schedule;
+    private Set<Calendar> schedule;
 
-//    private List<String> studentList; // studentId
-
-    //CONSTRUCTORS:
+    @ManyToMany(mappedBy = "currentRegisteredCourse", fetch = FetchType.LAZY)
+    @JsonIgnoreProperties("currentRegisteredCourse")
+    private Set<Student> studentList; // studentId
+    
     Course(){}
 
-    Course(String courseId){
+    Course(String courseName, String courseId, Set<String> prerequisite){
         this.courseId = courseId;
+        this.courseName = courseName;
+        this.prerequisite = prerequisite;
+    }
+
+    /**
+     * Register a new student
+     */
+    public String addStudent(Student student){
+        if (studentList == null){
+            studentList = new HashSet<>();
+        }
+        // check student in the list
+        if (studentList.contains(student)){
+            return "This student already registered for this course";
+        }
+        // add student
+        studentList.add(student);
+        return "Success";
+    }
+
+    /**
+     * Unregister a new student
+     */
+    public String removeStudent(Student student){
+        if (studentList == null){
+            studentList = new HashSet<>();
+        }
+        // check student in the list
+        if (!studentList.contains(student)){
+            return "This student is not in this course";
+        }
+        // add student
+        studentList.remove(student);
+        return "Success";
     }
 
 

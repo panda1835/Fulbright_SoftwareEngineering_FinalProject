@@ -9,11 +9,11 @@ import java.util.List;
 import java.util.Optional;
 
 public interface UserRepository extends JpaRepository<User, Long>{
-    List<User> findByEmailAndPassword(@Param("email") String email, @Param("pass") String password);
-
+    Optional<User> findByEmailAndPassword(@Param("email") String email, @Param("pass") String password);
     Optional<User> findByEmail(@Param("email") String email);
     Optional<User> findByUserId(@Param("userId") String userId);
 
 
     void deleteByUserId(@Param("userId") String userId);
+
 }

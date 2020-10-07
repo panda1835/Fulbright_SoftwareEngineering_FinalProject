@@ -2,6 +2,7 @@ package com.se2020.course.registration.controller;
 import java.util.*;
 
 import com.se2020.course.registration.entity.Course;
+import com.se2020.course.registration.entity.Student;
 import com.se2020.course.registration.entity.User;
 import com.se2020.course.registration.enums.PermissionsEnum;
 import com.se2020.course.registration.repository.CourseRepository;
@@ -11,21 +12,32 @@ import com.se2020.course.registration.utils.PermissionUtils;
 import com.se2020.course.registration.utils.SecurityUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 public class UserController {
     @Autowired
     private CourseRepository courseRepository;
-
     @Autowired
     private StudentRepository studentRepository;
-
     @Autowired
     private UserRepository userRepository;
 
+    //ALL USERS
+    /**
+     * All user browse course
+     */
+    @GetMapping("/browse")
+    public List<Course> browseCourse(){
+        return courseRepository.findAll();
+    }
 
     /**
-     * Admin -- users APIs
+     * Admin - USER APIs
      */
 
     /**
@@ -42,11 +54,11 @@ public class UserController {
         }else{
             return new ArrayList<>();
         }
-
     }
 
+
     /**
-     * Gets one user
+     * Get one user
      * @param email email of requester
      * @param password password of requester
      * @param userId user Id of person requester is looking up
@@ -128,7 +140,7 @@ public class UserController {
     }
 
     /**
-     *
+     * Remove a user from database
      * @param email email of requester
      * @param password password of requester
      * @param userId user Id of person requester is deleting
@@ -151,14 +163,13 @@ public class UserController {
     }
 
     /**
-     * ADMIN -- courses API
+     * ADMIN -- COURSE API
      */
 
     /**
-     *
+     * Retrieve list of courses
      * @param email
      * @param password
-     * @return
      */
     @GetMapping("/course")
     @ResponseBody
@@ -170,11 +181,10 @@ public class UserController {
     }
 
     /**
-     *
+     * Retrieve a course
      * @param email
      * @param password
      * @param courseId
-     * @return
      */
     @GetMapping("/course/{courseId}")
     @ResponseBody
@@ -188,7 +198,7 @@ public class UserController {
     }
 
     /**
-     *
+     * Put a new course to the database
      * @param email
      * @param password
      * @param course
@@ -210,11 +220,10 @@ public class UserController {
 
         courseRepository.save(course);
         return "Success";
-
     }
 
     /**
-     *
+     * Update a course
      * @param email
      * @param password
      * @param updatedCourse
@@ -237,8 +246,8 @@ public class UserController {
 
         course.setCourseName(updatedCourse.getCourseName());
 
-        course.setProfessors(updatedCourse.getProfessors());
-        course.setPrerequisites(updatedCourse.getPrerequisites());
+        // course.setProfessors(updatedCourse.getProfessors());
+        course.setPrerequisite(updatedCourse.getPrerequisite());
 
         course.setSyllabus(updatedCourse.getSyllabus());
         course.setNumCredits(updatedCourse.getNumCredits());
@@ -252,7 +261,7 @@ public class UserController {
     }
 
     /**
-     *
+     * Remove a course from database
      * @param email
      * @param password
      * @param courseId
@@ -269,24 +278,123 @@ public class UserController {
         if (courseRepository.findByCourseId(courseId).isEmpty()){
             return "Course not found";
         }
-        courseRepository.deleteByCourseId (courseId);
+        courseRepository.deleteByCourseId(courseId);
         return "Success";
     }
+    // STUDENT
+    /**
+     * Register for a course
+     */
+    @PutMapping("/student/register/{courseId}")
+    public String courseRegister(@RequestBody String userId, @PathVariable String courseId){
+        
+        // check userId to be student
+        User user = userRepository.findByUserId(userId).orElse(null);
+        if (user == null){
+            return "Invalid user Id";
+        }
+        String role = user.getRole();
+        if (role.compareTo("student") != 0){
+            return "Only student can access this page";
+        }
+ 
+        // create student object
+        Student student = studentRepository.findByStudentId(userId).get();
+        Course course = courseRepository.findByCourseId(courseId).orElse(null);
+        String studentId = student.getStudentId();
+        
+        // check capacity
+        if (course.getStudentList().size() < course.getCapacity()){
+            return "This course is already full";
+        }
 
+        // check student register status
+        for (Student stu: course.getStudentList()){
+            if (stu.getStudentId().compareTo(studentId) == 0){
+                return "You already registered for this course";
+            }
+        }
 
+        // check prerequisite
+        Set<String> prerequisite = course.getPrerequisite();
+        Set<Course> pastCourse = student.getPastCourses();
+        Set<String> pastCourseId = new HashSet<>();
+        for (Course c:pastCourse){
+            pastCourseId.add(c.getCourseId());
+        }
+        for (String pre: prerequisite){
+            if (pastCourseId.contains(pre)){
+                continue;
+            }
+            return "You are not fulfill the prerequisite";
+        }
 
+        // success, update database
+        Student updateStudent = studentRepository.getOne(student.getId());
+        Course updateCourse = courseRepository.getOne(course.getId());
+        updateStudent.addCurrentCourse(course);
+        updateCourse.addStudent(student);
+        studentRepository.save(updateStudent);
+        courseRepository.save(updateCourse);
 
+        return "You successfully register for this course";
+    }
 
+    /**
+     * Cancel a course
+     */
+    @PutMapping("/course/cancel/{courseId}")
+    public String courseCancel(@RequestBody String userId, @PathVariable String courseId){
 
+        // check userId to be student
+        User user = userRepository.findByUserId(userId).orElse(null);
+        if (user == null){
+            return "InvalId user Id";
+        }
+        String role = user.getRole();
+        if (role.compareTo("student") != 0){
+            return "Only student can access this page";
+        }
 
+        // create student object
+        Student student = studentRepository.findByStudentId(userId).get();
+        // check student in this course
+        Course course = courseRepository.findByCourseId(courseId).orElse(null);
+        if (course == null){
+            return "InvalId course Id";
+        }
+        if (!course.getStudentList().contains(student)){
+            return "You are not in this course";
+        }
+        
+        // check 2-week duration
+        // ...
 
+        // success, update database
+        Student updateStudent = studentRepository.getOne(student.getId());
+        Course updateCourse = courseRepository.getOne(course.getId());
+        updateStudent.removeCurrentCourse(course);
+        updateCourse.removeStudent(student);
+        studentRepository.save(updateStudent);
+        courseRepository.save(updateCourse);
 
+        return "You successfully cancel this course";
+    }
 
-
-
-
-
-
-
+    /**
+     * Edit profile
+     */
+    @PutMapping("/profile/edit/{role}/{studentId}")
+    public String updateProfile(@RequestBody Student student, @PathVariable String role
+                                                            , @PathVariable String studentId){
+        // check student
+        if (role.compareTo("student") == 0){
+            Student updateStudent = studentRepository.getOne(student.getId());
+            updateStudent.setAboutMe(student.getAboutMe());
+            updateStudent.setDob(student.getDob());
+            updateStudent.setHashedPassword(SecurityUtils.hashPassword(student.getHashedPassword()));
+            studentRepository.save(updateStudent);
+        }
+        return "Success";
+    }
 }
-
