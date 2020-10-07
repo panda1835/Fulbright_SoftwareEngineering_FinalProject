@@ -42,9 +42,9 @@ public class UserController {
     public String courseRegister(@RequestBody String userId, @PathVariable String courseId){
         
         // check userId to be student
-        List<User> user = userRepository.findByUserID(userId);
+        List<User> user = userRepository.findByUserId(userId);
         if (user.size() == 0){
-            return "Invalid user id";
+            return "InvalId user Id";
         }
         String role = user.get(0).getRole();
         if (role.compareTo("student") != 0){
@@ -52,10 +52,10 @@ public class UserController {
         }
  
         // create student object
-        Student student = studentRepository.findByStudentID(userId).get(0);
+        Student student = studentRepository.findByStudentId(userId).get(0);
 
 
-        Course course = courseRepository.findByCourseID(courseId).get(0);
+        Course course = courseRepository.findByCourseId(courseId).get(0);
         String studentId = student.getStudentId();
         
         // check capacity
@@ -64,20 +64,18 @@ public class UserController {
         }
 
         // check student register status
-        for (String id: course.getStudentList()){
-            if (id.compareTo(studentId) == 0){
+        for (Student stu: course.getStudentList()){
+            if (stu.getStudentId().compareTo(studentId) == 0){
                 return "You already registered for this course";
             }
         }
 
         // check prerequisite
-        List<String> prerequisite = course.getPrerequisite();
-        List<String> pastCourse = student.getPastCourses();
+        Set<String> prerequisite = course.getPrerequisite();
+        Set<String> pastCourse = student.getPastCourses();
         for (String pre: prerequisite){
-            for (int i = 0; i < pastCourse.size(); i++){
-                if (pastCourse.get(i).compareTo(pre) == 0) {
-                    continue;
-                }
+            if (pastCourse.contains(pre)){
+                continue;
             }
             return "You are not fulfill the prerequisite";
         }
@@ -85,8 +83,8 @@ public class UserController {
         // success, update database
         Student updateStudent = studentRepository.getOne(student.getId());
         Course updateCourse = courseRepository.getOne(course.getId());
-        updateStudent.getCurrentRegisteredCourse().add(courseId);
-        updateCourse.getStudentList().add(studentId);
+        updateStudent.addCurrentCourse(course);
+        updateCourse.addStudent(student);
         studentRepository.save(updateStudent);
         courseRepository.save(updateCourse);
 
@@ -100,9 +98,9 @@ public class UserController {
     public String courseCancel(@RequestBody String userId, @PathVariable String courseId){
 
         // check userId to be student
-        List<User> user = userRepository.findByUserID(userId);
+        List<User> user = userRepository.findByUserId(userId);
         if (user.size() == 0){
-            return "Invalid user id";
+            return "InvalId user Id";
         }
         String role = user.get(0).getRole();
         if (role.compareTo("student") != 0){
@@ -110,33 +108,25 @@ public class UserController {
         }
 
         // create student object
-        Student student = studentRepository.findByStudentID(userId).get(0);
-        String studentId = student.getStudentId();
+        Student student = studentRepository.findByStudentId(userId).get(0);
         // check student in this course
-        List<Course> courses = courseRepository.findByCourseID(courseId);
+        List<Course> courses = courseRepository.findByCourseId(courseId);
         if (courses.size() == 0){
-            return "Invalid course id";
+            return "InvalId course Id";
         }
         Course course = courses.get(0);
-        boolean bol = false;
-        for (String id: course.getStudentList()){
-            if (id.compareTo(student.getStudentId()) == 0){
-                bol = true;
-                break;
-            }
-        }
-        if (bol == false){
+        if (!course.getStudentList().contains(student)){
             return "You are not in this course";
         }
-
+        
         // check 2-week duration
         // ...
 
         // success, update database
         Student updateStudent = studentRepository.getOne(student.getId());
         Course updateCourse = courseRepository.getOne(course.getId());
-        updateStudent.getCurrentRegisteredCourse().remove(courseId);
-        updateCourse.getStudentList().remove(studentId);
+        updateStudent.removeCurrentCourse(course);
+        updateCourse.removeStudent(student);
         studentRepository.save(updateStudent);
         courseRepository.save(updateCourse);
 
