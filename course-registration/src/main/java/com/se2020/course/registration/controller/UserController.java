@@ -49,7 +49,7 @@ public class UserController {
     @GetMapping("/user")
     @ResponseBody
     public List<User> getAllUsers(@RequestParam("email") String email, @RequestParam("password") String password){
-        if (PermissionUtils.hasPermission(PermissionsEnum.GET_USER, email, password, userRepository)){
+        if (PermissionUtils.hasPermission(PermissionsEnum.ADMIN_GET_USER, email, password, userRepository)){
             return userRepository.findAll();
         }else{
             return new ArrayList<>();
@@ -69,7 +69,7 @@ public class UserController {
     public User getUser(@RequestParam("email") String email, @RequestParam("password") String password,
                               @PathVariable("userId") String userId){
 
-        if (PermissionUtils.hasPermission(PermissionsEnum.GET_USER, email,password,userRepository)){
+        if (PermissionUtils.hasPermission(PermissionsEnum.ADMIN_GET_USER, email,password,userRepository)){
             return userRepository.findByUserId(userId).orElse(null);
         }
         return null;
@@ -94,7 +94,7 @@ public class UserController {
             userRepository.save(firstUser);
         }
 
-        if (!PermissionUtils.hasPermission(PermissionsEnum.ADD_USER, email, password, userRepository)){
+        if (!PermissionUtils.hasPermission(PermissionsEnum.ADMIN_ADD_USER, email, password, userRepository)){
             return "Only Admin are allowed to add new user";
         }
 
@@ -124,7 +124,7 @@ public class UserController {
     @ResponseBody
     public String updateUser (@RequestParam("email") String email, @RequestParam("password") String password,
                               @RequestBody User updatedUser, @PathVariable("userId") String userId){
-        if (!PermissionUtils.hasPermission(PermissionsEnum.MODIFY_USER, email, password,userRepository)){
+        if (!PermissionUtils.hasPermission(PermissionsEnum.ADMIN_MODIFY_USER, email, password,userRepository)){
             return "Only Admin are allowed to update user info";
         }
 
@@ -151,7 +151,7 @@ public class UserController {
     @ResponseBody
     public String deleteUser(@RequestParam("email") String email, @RequestParam("password") String password,
                              @PathVariable("userId") String userId){
-        if (!PermissionUtils.hasPermission(PermissionsEnum.DELETE_USER, email, password, userRepository)){
+        if (!PermissionUtils.hasPermission(PermissionsEnum.ADMIN_DELETE_USER, email, password, userRepository)){
             return "Only Admin are allowed to delete user";
         }
 
@@ -174,7 +174,7 @@ public class UserController {
     @GetMapping("/course")
     @ResponseBody
     public List<Course> getAllCourses(@RequestParam("email") String email, @RequestParam("password") String password){
-        if (PermissionUtils.hasPermission(PermissionsEnum.GET_COURSE, email,password, userRepository)){
+        if (PermissionUtils.hasPermission(PermissionsEnum.ALL_GET_COURSE, email,password, userRepository)){
             return courseRepository.findAll();
         }
         return new ArrayList<>();
@@ -190,7 +190,7 @@ public class UserController {
     @ResponseBody
     public Course getCourse(@RequestParam("email") String email, @RequestParam("password") String password,
                             @PathVariable("courseId") String courseId){
-        if (PermissionUtils.hasPermission(PermissionsEnum.GET_COURSE, email,password,userRepository)){
+        if (PermissionUtils.hasPermission(PermissionsEnum.ALL_GET_COURSE, email,password,userRepository)){
             return courseRepository.findByCourseId(courseId).orElse(null);
         }
         return null;
@@ -208,7 +208,7 @@ public class UserController {
     @ResponseBody
     public String addCourse(@RequestParam("email") String email, @RequestParam("password") String password,
                             @RequestBody Course course){
-        if (!PermissionUtils.hasPermission(PermissionsEnum.ADD_COURSE, email, password, userRepository)){
+        if (!PermissionUtils.hasPermission(PermissionsEnum.ADMIN_ADD_COURSE, email, password, userRepository)){
             return "Only Admin are allowed to add new course";
         }
 
@@ -234,7 +234,7 @@ public class UserController {
     @ResponseBody
     public String updateCourse(@RequestParam("email") String email, @RequestParam("password") String password,
                                @RequestBody Course updatedCourse, @PathVariable("courseId") String courseId){
-        if (!PermissionUtils.hasPermission(PermissionsEnum.MODIFY_COURSE, email, password,userRepository)){
+        if (!PermissionUtils.hasPermission(PermissionsEnum.ADMIN_MODIFY_COURSE, email, password,userRepository)){
             return "Only Admin are allowed to update course info";
         }
 
@@ -271,7 +271,7 @@ public class UserController {
     @ResponseBody
     public String deleteCourse(@RequestParam("email") String email, @RequestParam("password") String password,
                                @PathVariable("courseId") String courseId){
-        if (!PermissionUtils.hasPermission(PermissionsEnum.DELETE_COURSE, email, password, userRepository)){
+        if (!PermissionUtils.hasPermission(PermissionsEnum.ADMIN_DELETE_COURSE, email, password, userRepository)){
             return "Only Admin are allowed to delete course";
         }
 
@@ -281,21 +281,18 @@ public class UserController {
         courseRepository.deleteByCourseId(courseId);
         return "Success";
     }
+
+
     // STUDENT
     /**
      * Register for a course
      */
-    @PutMapping("/student/register/{courseId}")
-    public String courseRegister(@RequestBody String userId, @PathVariable String courseId){
+    @PutMapping("/student/register//{courseId}")
+    public String courseRegister(@RequestParam("email") String email, @RequestParam("password") String password, 
+                                 @RequestBody String userId, @PathVariable String courseId){
         
-        // check userId to be student
-        User user = userRepository.findByUserId(userId).orElse(null);
-        if (user == null){
-            return "Invalid user Id";
-        }
-        String role = user.getRole();
-        if (role.compareTo("student") != 0){
-            return "Only student can access this page";
+        if (!PermissionUtils.hasPermission(PermissionsEnum.STUDENT_REGISTER_COURSE, email, password,userRepository)){
+            return "Only Admin are allowed to update course info";
         }
  
         // create student object
@@ -344,7 +341,8 @@ public class UserController {
      * Cancel a course
      */
     @PutMapping("/course/cancel/{courseId}")
-    public String courseCancel(@RequestBody String userId, @PathVariable String courseId){
+    public String courseCancel(@RequestParam("email") String email, @RequestParam("password") String password,
+                               @RequestBody String userId, @PathVariable String courseId){
 
         // check userId to be student
         User user = userRepository.findByUserId(userId).orElse(null);
@@ -384,9 +382,9 @@ public class UserController {
     /**
      * Edit profile
      */
-    @PutMapping("/profile/edit/{role}/{studentId}")
-    public String updateProfile(@RequestBody Student student, @PathVariable String role
-                                                            , @PathVariable String studentId){
+    @PutMapping("/profile/edit/{studentId}")
+    public String updateProfile(@RequestParam("email") String email, @RequestParam("password") String password,
+                                @RequestBody Student student, @PathVariable String studentId){
         // check student
         if (role.compareTo("student") == 0){
             Student updateStudent = studentRepository.getOne(student.getId());

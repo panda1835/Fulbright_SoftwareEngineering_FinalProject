@@ -9,7 +9,7 @@ import java.util.List;
 import java.util.Optional;
 
 public interface UserRepository extends JpaRepository<User, Long>{
-    Optional<User> findByEmailAndPassword(@Param("email") String email, @Param("pass") String password);
+    List<User> findByEmailAndPassword(@Param("email") String email, @Param("pass") String password);
     Optional<User> findByEmail(@Param("email") String email);
     Optional<User> findByUserId(@Param("userId") String userId);
 
