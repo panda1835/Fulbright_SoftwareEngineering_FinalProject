@@ -18,25 +18,14 @@ public class Course{
     private String syllabus;
     private int numCredits;
     private int capacity;
-
-
-    @ElementCollection
-    @CollectionTable(name = "professors")
-    private List<String> professor; // prof name
+    private String startDate;
+    private String endDate;
+    private Set<String> schedule;
+    private List<String> professor; 
 
     @ElementCollection
     @CollectionTable(name = "prerequisite")
     private Set<String> prerequisite; // courseId
-
-    @Temporal(TemporalType.DATE)
-    private Calendar startDate;
-
-    @Temporal(TemporalType.DATE)
-    private Calendar endDate;
-
-    @ElementCollection
-    @Temporal(TemporalType.TIMESTAMP)
-    private Set<Calendar> schedule;
 
     @ManyToMany(mappedBy = "currentRegisteredCourse", fetch = FetchType.LAZY)
     @JsonIgnoreProperties("currentRegisteredCourse")
