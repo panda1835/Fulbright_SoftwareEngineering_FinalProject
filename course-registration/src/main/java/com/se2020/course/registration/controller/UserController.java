@@ -54,11 +54,20 @@ public class UserController {
     /**
      * Change password
      */
-    @PutMapping("/password")
+    @PutMapping("/profile/password")
     public String changePassword(@RequestParam("email") String email, @RequestParam("password") String password,
                                  @RequestParam("new_password") String newPassword){
-
-        return "";
+        if (!PermissionUtils.hasPermission(PermissionsEnum.CHANGE_PASSWORD, email, password, userRepository)){
+            return "You don't have permission to perform this action";
+        }
+        List<User> users = userRepository.findByEmailAndPassword(email, password);
+        if (users.isEmpty()){
+            return "Wrong email or password";
+        }
+        User user = users.get(0);
+        user.setPassword(SecurityUtils.hashPassword(newPassword));
+        userRepository.save(user);
+        return "Success";
     }
 
     /**
@@ -428,12 +437,12 @@ public class UserController {
     /**
      * Edit student profile
      */
-    @PutMapping("/profile/edit/{studentId}")
+    @PutMapping("/profile/info/{studentId}")
     public String updateProfile(@RequestParam("email") String email, @RequestParam("password") String password,
                                 @PathVariable("studentId") String studentId,
                                 @RequestBody Student updateStudent){
         // student edit student profile
-        if (PermissionUtils.hasPermission(PermissionsEnum.STUDENT_MODIFY_PROFILE, email, password,userRepository)){
+        if (PermissionUtils.hasPermission(PermissionsEnum.STUDENT_EIDT_PROFILE, email, password,userRepository)){
             Student student = studentRepository.findByStudentId(studentId).get(); 
             student.setAboutMe(updateStudent.getAboutMe());
             
