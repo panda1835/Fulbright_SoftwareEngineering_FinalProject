@@ -20,8 +20,9 @@ public class Course{
     private int capacity;
     private String startDate;
     private String endDate;
-    private Set<String> schedule;
-    private List<String> professor; 
+    // private Set<String> schedule;
+
+    // private List<String> professor; 
 
     @ElementCollection
     @CollectionTable(name = "prerequisite")
