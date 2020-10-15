@@ -303,7 +303,7 @@ public class UserController {
 
         course.setStartDate(updatedCourse.getStartDate());
         course.setEndDate(updatedCourse.getEndDate());
-        course.setSchedule(updatedCourse.getSchedule());
+        // course.setSchedule(updatedCourse.getSchedule());
         courseRepository.save(course);
         return "Success";
     }
@@ -442,7 +442,7 @@ public class UserController {
                                 @PathVariable("studentId") String studentId,
                                 @RequestBody Student updateStudent){
         // student edit student profile
-        if (PermissionUtils.hasPermission(PermissionsEnum.STUDENT_EIDT_PROFILE, email, password,userRepository)){
+        if (PermissionUtils.hasPermission(PermissionsEnum.STUDENT_EDIT_PROFILE, email, password,userRepository)){
             Student student = studentRepository.findByStudentId(studentId).get(); 
             student.setAboutMe(updateStudent.getAboutMe());
             
