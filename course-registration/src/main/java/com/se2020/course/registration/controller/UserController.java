@@ -39,6 +39,29 @@ public class UserController {
     }
 
     /**
+     * Login
+     */
+    @GetMapping("/login")
+    public User login(@RequestParam("email") String email, @RequestParam("password") String password){
+
+        List<User> user = userRepository.findByEmailAndPassword(email, password);
+        if (user.isEmpty()){
+            return null;
+        }
+        return user.get(0);
+    }
+
+    /**
+     * Change password
+     */
+    @PutMapping("/password")
+    public String changePassword(@RequestParam("email") String email, @RequestParam("password") String password,
+                                 @RequestParam("new_password") String newPassword){
+
+        return "";
+    }
+
+    /**
      * Admin - USER APIs
      */
 
@@ -114,6 +137,7 @@ public class UserController {
 
         String hashedPassword = SecurityUtils.hashPassword(user.getPassword());
         user.setPassword(hashedPassword);
+        
         userRepository.save(user);
         return "Success";
     }
@@ -429,7 +453,6 @@ public class UserController {
         if(!PermissionUtils.hasPermission(PermissionsEnum.STUDENT_GET_MY_COURSE, email, password, userRepository)){
             return new HashSet<>();
         }
-        List<Course> courseList = new ArrayList<>();
         Student student = studentRepository.findByStudentId(userRepository.findByEmailAndPassword(email, password).get(0).getUserId()).get(); 
         return student.getCurrentRegisteredCourse();
     }
