@@ -11,19 +11,20 @@ import java.util.List;
 
 public class RoleUtils {
     public static final List<PermissionsEnum> ADMIN_PERMISSION = new ArrayList<>(Arrays.asList(
-            PermissionsEnum.LOG_IN, PermissionsEnum.CHANGE_PASSWORD, PermissionsEnum.MODIFY_PROFILE,
-            PermissionsEnum.ADD_USER, PermissionsEnum.MODIFY_USER, PermissionsEnum.DELETE_USER,PermissionsEnum.GET_USER,
-            PermissionsEnum.ADD_COURSE, PermissionsEnum.MODIFY_COURSE, PermissionsEnum.DELETE_COURSE, PermissionsEnum.GET_COURSE,
-            PermissionsEnum.ADD_STUDENT_COURSE, PermissionsEnum.DELETE_STUDENT_COURSE,
-            PermissionsEnum.MODIFY_STUDENT_COURSE, PermissionsEnum.GET_STUDENT_COURSE));
+            PermissionsEnum.ALL_LOG_IN, PermissionsEnum.CHANGE_PASSWORD, 
+            PermissionsEnum.ADMIN_ADD_USER, PermissionsEnum.ADMIN_MODIFY_USER_ACCOUNT, PermissionsEnum.ADMIN_DELETE_USER,PermissionsEnum.ADMIN_GET_USER,
+            PermissionsEnum.ADMIN_ADD_COURSE, PermissionsEnum.ADMIN_MODIFY_COURSE, PermissionsEnum.ADMIN_DELETE_COURSE, PermissionsEnum.ALL_GET_COURSE,
+            PermissionsEnum.ADMIN_EDIT_STUDENT_INFO
+            ));
 
     public static final List<PermissionsEnum> STUDENT_PERMISSION = new ArrayList<>(Arrays.asList(
-            PermissionsEnum.LOG_IN,PermissionsEnum.CHANGE_PASSWORD,PermissionsEnum.MODIFY_PROFILE,
-            PermissionsEnum.REGISTER_COURSE, PermissionsEnum.CANCEL_COURSE, PermissionsEnum.GET_COURSE,
-            PermissionsEnum.GET_MY_COURSE));
+            PermissionsEnum.ALL_LOG_IN,PermissionsEnum.CHANGE_PASSWORD,
+            PermissionsEnum.STUDENT_EDIT_PROFILE,
+            PermissionsEnum.STUDENT_REGISTER_COURSE, PermissionsEnum.STUDENT_CANCEL_COURSE, PermissionsEnum.ALL_GET_COURSE,
+            PermissionsEnum.STUDENT_GET_MY_COURSE));
 
     public static final List<PermissionsEnum> GUEST_PERMISSION = new ArrayList<>(
-            Collections.singletonList(PermissionsEnum.GET_COURSE));
+            Collections.singletonList(PermissionsEnum.ALL_GET_COURSE));
 
     public static List<PermissionsEnum> getPermissionFromRole(String role){
         List<PermissionsEnum> permissions;
