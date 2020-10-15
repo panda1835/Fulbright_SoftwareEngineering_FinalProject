@@ -156,7 +156,7 @@ public class UserController {
     @ResponseBody
     public String updateUser(@RequestParam("email") String email, @RequestParam("password") String password,
             @RequestBody User updatedUser, @PathVariable("userId") String userId) {
-        if (!PermissionUtils.hasPermission(PermissionsEnum.ADMIN_MODIFY_USER, email, password, userRepository)) {
+        if (!PermissionUtils.hasPermission(PermissionsEnum.ADMIN_MODIFY_USER_ACCOUNT, email, password, userRepository)) {
             return "Only Admin are allowed to update user info";
         }
 
@@ -426,23 +426,37 @@ public class UserController {
     }
 
     /**
-     * Edit profile
+     * Edit student profile
      */
-    @PutMapping("/profile/edit")
+    @PutMapping("/profile/edit/{studentId}")
     public String updateProfile(@RequestParam("email") String email, @RequestParam("password") String password,
-                                @PathVariable String studentId){
-        // check student
+                                @PathVariable("studentId") String studentId,
+                                @RequestBody Student updateStudent){
+        // student edit student profile
         if (PermissionUtils.hasPermission(PermissionsEnum.STUDENT_MODIFY_PROFILE, email, password,userRepository)){
-            Student student = studentRepository.findByStudentId(userRepository.findByEmailAndPassword(email, password).get(0).getUserId()).get(); 
-            Student updateStudent = studentRepository.getOne(student.getId());
-            updateStudent.setAboutMe(student.getAboutMe());
-            updateStudent.setDob(student.getDob());
-            updateStudent.setHashedPassword(SecurityUtils.hashPassword(student.getHashedPassword()));
-            studentRepository.save(updateStudent);
+            Student student = studentRepository.findByStudentId(studentId).get(); 
+            student.setAboutMe(updateStudent.getAboutMe());
+            
+            studentRepository.save(student);
             return "Success";
         }
 
-        return "You don't have permission to edit this user profile";
+        // admin edit student profile
+        if (PermissionUtils.hasPermission(PermissionsEnum.ADMIN_EDIT_STUDENT_INFO, email, password, userRepository)){
+            Student student = studentRepository.findByStudentId(studentId).get(); 
+            student.setCurrentRegisteredCourse(updateStudent.getCurrentRegisteredCourse());
+            student.setDob(updateStudent.getDob());
+            student.setEmail(updateStudent.getEmail());
+            student.setGradYear(updateStudent.getGradYear());
+            student.setName(updateStudent.getName());
+            student.setNumCredits(updateStudent.getNumCredits());
+            student.setPastCourses(updateStudent.getPastCourses());
+            student.setStudentId(updateStudent.getStudentId());
+
+            studentRepository.save(updateStudent);
+            return "Success";
+        }
+        return "You don't have permission to perform this action";
     }
 
     /**
