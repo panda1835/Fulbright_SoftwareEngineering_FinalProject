@@ -146,8 +146,13 @@ public class UserController {
 
         String hashedPassword = SecurityUtils.hashPassword(user.getPassword());
         user.setPassword(hashedPassword);
-        
         userRepository.save(user);
+
+        if (user.getRole().toLowerCase().equals("student")){
+            Student student = new Student(user.getUserName(), user.getUserId(), user.getEmail());
+            studentRepository.save(student);
+        }
+
         return "Success";
     }
 
@@ -175,7 +180,24 @@ public class UserController {
         User user = userRepository.findByUserId(userId).get();
         user.setUserName(updatedUser.getUserName());
         user.setRole(updatedUser.getRole());
+        if (userRepository.findByUserId(updatedUser.getUserId()).isEmpty()){
+            user.setUserId(updatedUser.getUserId());
+        }
         userRepository.save(user);
+
+        if (user.getRole().toLowerCase().equals("student")){
+            studentRepository.findByStudentId(userId)
+                    .map(student -> {
+                        student.setStudentId(user.getUserId());
+                        student.setName(user.getUserName());
+                        return studentRepository.save(student);
+                    })
+                    .orElseGet(() ->{
+                        return studentRepository.save(new Student(user.getUserName(), user.getUserId(), user.getEmail()));
+                    }
+                    );
+        }
+
         return "Success";
 
     }
@@ -201,6 +223,7 @@ public class UserController {
             return "User not found";
         }
         userRepository.deleteByUserId(userId);
+        studentRepository.deleteByStudentId(userId);
         return "Success";
     }
 
@@ -340,17 +363,18 @@ public class UserController {
             @PathVariable String courseId) {
 
         if (!PermissionUtils.hasPermission(PermissionsEnum.STUDENT_REGISTER_COURSE, email, password, userRepository)) {
-            return "Only Admin are allowed to update course info";
+            return "Only students are allowed to register course";
         }
 
-        // create student object
+//        // create student object
+        String hashedPassword = SecurityUtils.hashPassword(password);
         Student student = studentRepository
-                .findByStudentId(userRepository.findByEmailAndPassword(email, password).get(0).getUserId()).get();
+                .findByStudentId(userRepository.findByEmailAndPassword(email, hashedPassword).get(0).getUserId()).get();
         Course course = courseRepository.findByCourseId(courseId).orElse(null);
         String studentId = student.getStudentId();
-
-        // check capacity
-        if (course.getStudentList().size() < course.getCapacity()) {
+//
+//        // check capacity
+        if (course.getStudentList().size() >= course.getCapacity()) {
             return "This course is already full";
         }
 
@@ -369,19 +393,18 @@ public class UserController {
             pastCourseId.add(c.getCourseId());
         }
         for (String pre : prerequisite) {
-            if (pastCourseId.contains(pre)) {
-                continue;
-            }
-            return "You are not fulfill the prerequisite";
+            if (!pastCourseId.contains(pre)) {
+                return "You do not fulfill the prerequisite";}
         }
 
-        // success, update database
-        Student updateStudent = studentRepository.getOne(student.getId());
-        Course updateCourse = courseRepository.getOne(course.getId());
-        updateStudent.addCurrentCourse(course);
-        updateCourse.addStudent(student);
-        studentRepository.save(updateStudent);
-        courseRepository.save(updateCourse);
+//        // success, update database
+//        Student updateStudent = studentRepository.getOne(student.getId());
+////        Course updateCourse = courseRepository.getOne(course.getId());
+        student.addCurrentCourse(course);
+        course.addStudent(student);
+        studentRepository.save(student);
+        courseRepository.save(course);
+
 
         return "You successfully register for this course";
     }
@@ -400,36 +423,36 @@ public class UserController {
         // create student object
         Student student = studentRepository
                 .findByStudentId(userRepository.findByEmailAndPassword(email, password).get(0).getUserId()).get();
-        // check student in this course
+//        // check student in this course
         Course course = courseRepository.findByCourseId(courseId).orElse(null);
         if (course == null) {
-            return "InvalId course Id";
+            return "Invalid course Id";
         }
-        if (!course.getStudentList().contains(student)) {
-            return "You are not in this course";
-        }
-
-        // check 2-week duration
-        long milliToday = new Date().toInstant().toEpochMilli();
-        Date startDay = new Date();
-        try {
-           startDay = new SimpleDateFormat("dd/mm/yyyy").parse(course.getStartDate());
-        } catch (ParseException e) {
-            e.printStackTrace();
-        }
-        long milliStartDay = startDay.toInstant().toEpochMilli();
-        long diff = milliToday - milliStartDay;
-        if (diff > 14*24*60*60*1000){
-            return "The course has been run for over 2 weeks and thus can not be cancelled";
-        }
-
-        // success, update database
-        Student updateStudent = studentRepository.getOne(student.getId());
-        Course updateCourse = courseRepository.getOne(course.getId());
-        updateStudent.removeCurrentCourse(course);
-        updateCourse.removeStudent(student);
-        studentRepository.save(updateStudent);
-        courseRepository.save(updateCourse);
+//        if (!course.getStudentList().contains(student)) {
+//            return "You are not in this course";
+//        }
+//
+//        // check 2-week duration
+//        long milliToday = new Date().toInstant().toEpochMilli();
+//        Date startDay = new Date();
+//        try {
+//           startDay = new SimpleDateFormat("dd/mm/yyyy").parse(course.getStartDate());
+//        } catch (ParseException e) {
+//            e.printStackTrace();
+//        }
+//        long milliStartDay = startDay.toInstant().toEpochMilli();
+//        long diff = milliToday - milliStartDay;
+//        if (diff > 14*24*60*60*1000){
+//            return "The course has been run for over 2 weeks and thus can not be cancelled";
+//        }
+//
+//        // success, update database
+//        Student updateStudent = studentRepository.getOne(student.getId()); // does update student automatically update course
+//        Course updateCourse = courseRepository.getOne(course.getId());
+//        updateStudent.removeCurrentCourse(course);
+//        updateCourse.removeStudent(student);
+//        studentRepository.save(updateStudent);
+//        courseRepository.save(updateCourse);
 
         return "You successfully cancel this course";
     }

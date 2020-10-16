@@ -29,7 +29,7 @@ public class Course{
     private Set<String> prerequisite; // courseId
 
     @ManyToMany(mappedBy = "currentRegisteredCourse", fetch = FetchType.LAZY)
-    @JsonIgnoreProperties("currentRegisteredCourse")
+    @JsonIgnoreProperties("courses")
     private Set<Student> studentList; // studentId
     
     Course(){}
