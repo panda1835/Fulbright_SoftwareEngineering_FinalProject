@@ -41,7 +41,7 @@ public class UserController {
     /**
      * Login
      */
-    @GetMapping("/login")
+    @PostMapping("/login")
     public User login(@RequestParam("email") String email, @RequestParam("password") String password){
 
         List<User> user = userRepository.findByEmailAndPassword(email, password);

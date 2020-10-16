@@ -5,11 +5,16 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.se2020.course.registration.entity.Course;
 import javax.persistence.*;
 
-
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Entity
 @Data
+@NoArgsConstructor // construct no arg constructor
+@AllArgsConstructor
+@Builder 
 public class Student{
     @Id 
     @GeneratedValue
@@ -21,7 +26,6 @@ public class Student{
     private int gradYear;
     private String aboutMe;
     private int numCredits;
-    // private String hashedPassword;
 
     @ManyToMany(cascade = CascadeType.ALL)
     @JoinTable(name = "student_pastCourse",
@@ -39,9 +43,8 @@ public class Student{
     @JsonIgnoreProperties("students")
     private Set<Course> currentRegisteredCourse; // courseId
 
-    Student(){}
 
-    Student(String name, String studentId){
+    public Student(String name, String studentId){
         this.name = name;
         this.studentId = studentId;
     }
