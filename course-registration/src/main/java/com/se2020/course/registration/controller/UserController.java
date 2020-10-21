@@ -321,8 +321,6 @@ public class UserController {
 
         course.setCourseName(updatedCourse.getCourseName());
 
-        // course.setProfessors(updatedCourse.getProfessors());
-        course.setPrerequisite(updatedCourse.getPrerequisite());
 
         course.setSyllabus(updatedCourse.getSyllabus());
         course.setNumCredits(updatedCourse.getNumCredits());
@@ -382,32 +380,10 @@ public class UserController {
             return "This course is already full";
         }
 
-        // check student register status
-        for (Student stu : course.getStudentList()) {
-            if (stu.getStudentId().compareTo(studentId) == 0) {
-                return "You already registered for this course";
-            }
-        }
-
-//         check prerequisite
-        Set<String> prerequisite = course.getPrerequisite();
-        Set<Course> pastCourse = student.getPastCourses();
-        Set<String> pastCourseId = new HashSet<>();
-        for (Course c : pastCourse) {
-            pastCourseId.add(c.getCourseId());
-        }
-        for (String pre : prerequisite) {
-            if (!pastCourseId.contains(pre)) {
-                return "You do not fulfill the prerequisite";}
-        }
-
         // success, update database
-        Student updateStudent = studentRepository.getOne(student.getId());
-//        Course updateCourse = courseRepository.getOne(course.getId());
-        student.addCurrentCourse(course);
-        course.addStudent(student);
+
+        student.addCourse(course);
         studentRepository.save(student);
-        courseRepository.save(course);
 
 
         return "You successfully register for this course";
@@ -453,10 +429,9 @@ public class UserController {
         // success, update database
         Student updateStudent = studentRepository.getOne(student.getId()); // does update student automatically update course
         Course updateCourse = courseRepository.getOne(course.getId());
-        updateStudent.removeCurrentCourse(course);
-        updateCourse.removeStudent(student);
+        updateStudent.removeCourse(course);
+
         studentRepository.save(updateStudent);
-        courseRepository.save(updateCourse);
 
         return "You successfully cancel this course";
     }
