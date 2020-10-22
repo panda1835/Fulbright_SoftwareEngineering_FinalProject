@@ -20,57 +20,20 @@ public class Course{
     private int capacity;
     private String startDate;
     private String endDate;
-    // private Set<String> schedule;
 
-    // private List<String> professor; 
-
-    @ElementCollection
-    @CollectionTable(name = "prerequisite")
-    private Set<String> prerequisite; // courseId
 
     @ManyToMany(mappedBy = "currentRegisteredCourse", fetch = FetchType.LAZY)
     @JsonIgnoreProperties("currentRegisteredCourse")
-    private Set<Student> studentList; // studentId
+    private Set<Student> studentList = new HashSet<>(); // studentId
 
     Course(){}
 
-    Course(String courseName, String courseId, Set<String> prerequisite){
+    Course(String courseName, String courseId){
         this.courseId = courseId;
         this.courseName = courseName;
-        this.prerequisite = prerequisite;
     }
 
-    /**
-     * Register a new student
-     */
-    public String addStudent(Student student){
-        if (studentList == null){
-            studentList = new HashSet<>();
-        }
-        // check student in the list
-        if (studentList.contains(student)){
-            return "This student already registered for this course";
-        }
-        // add student
-        studentList.add(student);
-        return "Success";
-    }
 
-    /**
-     * Unregister a new student
-     */
-    public String removeStudent(Student student){
-        if (studentList == null){
-            studentList = new HashSet<>();
-        }
-        // check student in the list
-        if (!studentList.contains(student)){
-            return "This student is not in this course";
-        }
-        // add student
-        studentList.remove(student);
-        return "Success";
-    }
 
 
 }

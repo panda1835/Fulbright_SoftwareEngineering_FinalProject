@@ -21,15 +21,7 @@ public class Student{
     private int gradYear;
     private String aboutMe;
     private int numCredits;
-//    private String hashedPassword;
 
-    @ManyToMany(cascade = CascadeType.ALL)
-    @JoinTable(name = "student_pastCourse",
-        joinColumns = {@JoinColumn(name = "student_id")},
-        inverseJoinColumns = {@JoinColumn(name = "course_id")}
-    )
-    @JsonIgnoreProperties("students")
-    private Set<Course> pastCourses;
 
     @ManyToMany(cascade = CascadeType.ALL)
     @JoinTable(name = "student_course",
@@ -37,7 +29,7 @@ public class Student{
         inverseJoinColumns = {@JoinColumn(name = "course_id")}
     )
     @JsonIgnoreProperties("students")
-    private Set<Course> currentRegisteredCourse; // courseId
+    private Set<Course> currentRegisteredCourse = new HashSet<>(); // courseId
 
     Student(){}
 
@@ -52,21 +44,17 @@ public class Student{
         this.email = email;
     }
 
-    public String addCurrentCourse(Course course){
-        if (currentRegisteredCourse == null){
+    public void addCourse(Course course) {
+        if (currentRegisteredCourse == null) {
             currentRegisteredCourse = new HashSet<>();
         }
-
         this.getCurrentRegisteredCourse().add(course);
-        return "Success";
     }
 
-    public String removeCurrentCourse(Course course){
-        if (!currentRegisteredCourse.contains(course)){
-            return "This course is not currently in your list";
+    public void removeCourse(Course p) {
+        if (currentRegisteredCourse == null) {
+            currentRegisteredCourse = new HashSet<>();
         }
-
-        this.getCurrentRegisteredCourse().remove(course);
-        return "Success";
+        this.getCurrentRegisteredCourse().remove(p);
     }
 }
