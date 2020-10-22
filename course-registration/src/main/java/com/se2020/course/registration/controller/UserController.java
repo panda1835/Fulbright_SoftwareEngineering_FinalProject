@@ -45,6 +45,7 @@ public class UserController {
     public String login(@RequestParam("email") String email, @RequestParam("password") String password){
         String hashed = SecurityUtils.hashPassword(password);
         List<User> user = userRepository.findByEmailAndPassword(email, hashed);
+
         if (user.isEmpty()){
             return "Wrong email or password";
         }
